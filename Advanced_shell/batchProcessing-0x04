@@ -1,8 +1,6 @@
 #!/bin/bash
 
 pokemons=("Bulbasaur" "Ivysaur" "Venusaur" "Charmander" "Charmeleon")
-#!/bin/bash
-pokemons=(Bulbasaur Ivysaur Venusaur Charmander Charmeleon)
 > errors.txt
 for p in "${pokemons[@]}"; do
   curl -sSf "https://pokeapi.co/api/v2/pokemon/${p,,}" -o "${p,,}.json" || echo "$p failed" >> errors.txt &
