@@ -1,43 +1,12 @@
 #!/bin/bash
 
 pokemons=("Bulbasaur" "Ivysaur" "Venusaur" "Charmander" "Charmeleon")
-base_url="https://pokeapi.co/api/v2/pokemon"
-
-# Error log file
-error_log="errors.txt"
-> "$error_log"
-
-fetch_pokemon() {
-    local pokemon="$1"
-    local pokemon_lower=$(echo "$pokemon" | tr '[:upper:]' '[:lower:]')
-    local output_file="${pokemon_lower}.json"
-    local attempt=1
-    local success=false
-
-    while [ $attempt -le 3 ]; do
-        echo "Fetching $pokemon (Attempt $attempt)..."
-        if curl -sSf "$base_url/$pokemon_lower" -o "$output_file"; then
-            echo "Successfully fetched $pokemon."
-            success=true
-            break
-        else
-            echo "Attempt $attempt for $pokemon failed."
-            ((attempt++))
-            sleep 2
-        fi
-    done
-
-    if [ "$success" = false ]; then
-        echo "$pokemon: Failed to fetch after 3 attempts" >> "$error_log"
-    fi
-}
-
-# Launch fetches in background
-for pokemon in "${pokemons[@]}"; do
-    fetch_pokemon "$pokemon" &
+#!/bin/bash
+pokemons=(Bulbasaur Ivysaur Venusaur Charmander Charmeleon)
+> errors.txt
+for p in "${pokemons[@]}"; do
+  curl -sSf "https://pokeapi.co/api/v2/pokemon/${p,,}" -o "${p,,}.json" || echo "$p failed" >> errors.txt &
 done
-
-# Wait for all background jobs to finish
+sleep 10
+kill $(jobs -p) 2>/dev/null
 wait
-
-echo "All fetches complete. Check errors.txt for any failures."
