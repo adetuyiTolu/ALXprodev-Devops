@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # List of Pokémon
-pokemon_list=("Bulbasaur" "Ivysaur" "Venusaur" "Charmander" "Charmeleon")
+pokemon_list=("bulbasaur" "ivysaur" "venusaur" "charmander" "charmeleon")
 
 # Loop through each Pokémon
 for pokemon in "${pokemon_list[@]}"; do
