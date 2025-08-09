@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# List of Pokémon
+pokemon_list=("Bulbasaur" "Ivysaur" "Venusaur" "Charmander" "Charmeleon")
+
+# Loop through each Pokémon
+for pokemon in "${pokemon_list[@]}"; do
+    # Convert to lowercase for API URL
+    pokemon_lower=$(echo "$pokemon" | tr '[:upper:]' '[:lower:]')
+
+    echo "Fetching data for $pokemon..."
+    curl -s "https://pokeapi.co/api/v2/pokemon/$pokemon_lower" -o "${pokemon_lower}.json"
+
+    if [ $? -eq 0 ]; then
+        echo "Saved ${pokemon_lower}.json"
+    else
+        echo "Failed to fetch $pokemon" >&2
+    fi
+
+    # Wait 2 seconds to avoid rate limits
+    sleep 2
+done
