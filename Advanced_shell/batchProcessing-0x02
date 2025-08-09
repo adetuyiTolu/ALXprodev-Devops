@@ -1,22 +1,45 @@
 #!/bin/bash
 
-# List of Pokémon
-pokemon_list=("bulbasaur" "ivysaur" "venusaur" "charmander" "charmeleon")
+# List of Pokémon to fetch
+pokemons=("Bulbasaur" "Ivysaur" "Venusaur" "Charmander" "Charmeleon")
 
-# Loop through each Pokémon
-for pokemon in "${pokemon_list[@]}"; do
-    # Convert to lowercase for API URL
+# API endpoint
+base_url="https://pokeapi.co/api/v2/pokemon"
+
+# Log file for errors
+error_log="errors.txt"
+
+# Ensure error log is empty at start
+> "$error_log"
+
+# Loop through Pokémon list
+for pokemon in "${pokemons[@]}"; do
     pokemon_lower=$(echo "$pokemon" | tr '[:upper:]' '[:lower:]')
+    output_file="${pokemon_lower}.json"
 
-    echo "Fetching data for $pokemon..."
-    curl -s "https://pokeapi.co/api/v2/pokemon/$pokemon_lower" -o "${pokemon_lower}.json"
+    attempt=1
+    success=false
 
-    if [ $? -eq 0 ]; then
-        echo "Saved ${pokemon_lower}.json"
-    else
-        echo "Failed to fetch $pokemon" >&2
+    while [ $attempt -le 3 ]; do
+        echo "Fetching data for $pokemon (Attempt $attempt)..."
+        
+        # Use -sS for silent except errors, -f to fail on HTTP errors
+        if curl -sSf "$base_url/$pokemon_lower" -o "$output_file"; then
+            echo "Successfully fetched $pokemon."
+            success=true
+            break
+        else
+            echo "Attempt $attempt for $pokemon failed."
+            ((attempt++))
+            sleep 2  # Wait before retry
+        fi
+    done
+
+    if [ "$success" = false ]; then
+        echo "$pokemon: Failed to fetch after 3 attempts" >> "$error_log"
     fi
 
-    # Wait 2 seconds to avoid rate limits
-    sleep 2
+    sleep 1  # Delay to prevent API rate-limiting
 done
+
+echo "Done. Errors (if any) logged in $error_log."
